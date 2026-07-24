@@ -41,4 +41,4 @@ Alternatively, just use **[WIVRN](https://github.com/wivrn/wivrn)** which isn't 
 
 ---
 
-*Good luck ☺️ * 
+Good luck and have fun! ☺️ 
