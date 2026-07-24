@@ -32,7 +32,9 @@ If it still doesn't work and you get an error in the log like:
 
 > *"Unable to find libqt5.so.5"* or something similar...
 
-Then give up and just use **Prism Launcher** — either in a Flatpak or as a native installation. It works, no folder-exposing nonsense required.
+Then give up and just use **Prism Launcher** — download the **AppImage**, it works, no folder-exposing nonsense required.
+
+Alternatively, just use **[WIVRN](https://github.com/wivrn/wivrn)** instead of SteamVR altogether.
 
 ---
 
