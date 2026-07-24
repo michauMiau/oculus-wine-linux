@@ -1,0 +1,15 @@
+# Windows installation files (large binaries, not tracked)
+*.exe
+*.msi
+setup.exe
+OculusInstaller*
+
+# Wine prefixes if created locally
+/drive_c/
+
+# Temp files from attempts
+*.tmp
+ocr_output_*.txt
+
+# Bottles config (optional - user may want to track or ignore)
+.bottles/
