@@ -5,23 +5,12 @@
 > **Platform:** Bottles Flatpak + Wine (kron4ek-wine-11.3 + Proton patchset)  
 > **Target Application:** Meta Horizon Link (Oculus PC Client v83.0.0.224.349)
 
----
-
-## ⚠️ Notes on Data Accuracy
-
-Some error messages and dialog text in this document were extracted using OCR from screenshots/photos of the installation process. The following errors may contain minor transcription inaccuracies due to OCR limitations:
-
-- `LastError = Ox6be` → Likely `0x6be` (hexadecimal error code)
-- `Wywolanie RPC nieudane` / `Wywołanie RPC nieudane` → Polish text meaning "RPC call failed"
-- Error codes like `-3001`, `0x6be (1726)` should be verified against actual dialog output
-
-Where possible, the original error messages have been preserved as accurately as OCR allowed. Most issues identified via OCR were manually corrected during investigation. For exact reproduction of errors, please refer to the original screenshots/log files.
 
 ---
 
 ## 🎯 Objective
 
-Run the full Meta Horizon Link (Oculus PC Client) on Linux using Wine/Bottles with Revive integration, enabling launch of Oculus Store games through SteamVR OpenXR runtime without requiring Quest Link streaming.
+Run the full Meta Horizon Link (formerly Oculus) on Linux using Wine/Bottles with Revive integration, enabling launch of Meta Quest PCVR Store games through SteamVR OpenXR runtime without requiring using windows or Quest/Air Link.
 
 **Desired Architecture:**
 ```
@@ -41,10 +30,8 @@ Game launches via SteamVR OpenXR runtime
 | Component | Version/Details |
 |-----------|-----------------|
 | **Wine** | kron4ek-wine-11.3 with Proton patchset |
-| **Alternative tried** | Proton GE 11-1 (did NOT launch installer) |
 | **Bottles** | Flatpak version |
-| **Analysis Tool** | Eagle-exe-scanner (built into Bottles dependencies manager) |
-| **Oculus Client** | Meta Horizon Link v83.0.0.224.349 |
+| **Analysis Tool** | Eagle (built into Bottles) |
 
 ---
 
@@ -60,14 +47,6 @@ The application attempts to install Windows services during setup. This is a fun
 
 **Impact:** 🔴 Critical blocker — Wine's SCM emulation is incomplete
 
-#### 2. WPF Framework Requirement ✅ (Not a blocker)
-```
-Detected: WPF (Windows Presentation Foundation)
-```
-The Oculus client uses WPF for UI rendering. However, this did **not** prevent installation — the installer launched successfully with graphical interface intact. Modern Proton GE builds include required ChildWindow patches by default.
-
-**Impact:** 🟢 Resolved — No action needed; new Proton versions handle WPF correctly
-
 ---
 
 ## 📝 Installation Attempts Log
@@ -78,11 +57,7 @@ The Oculus client uses WPF for UI rendering. However, this did **not** prevent i
 
 **Issue:** The application failed to start immediately upon execution under Proton GE 11-1.
 
-**Possible causes:**
-- Proton GE 11-1 may lack specific WPF ChildWindow patches required by newer Oculus builds
-- Bottles configuration incompatibility with this Wine version
-- Missing system dependencies (allfonts, .NET runtime)
-
+This was probably due to me not having enabled the Steam Runtime which is required for Proton GE
 ---
 
 ### Attempt #2: Bottles Flatpak + kron4ek-wine-11.3 + Proton Patchset ✅ Partial Success
@@ -99,6 +74,8 @@ The Oculus client uses WPF for UI rendering. However, this did **not** prevent i
 
 **Result after fix:** Fonts rendered correctly, but next issue appeared immediately.
 
+# How to get to where we are right now
+1. Create a wine (ai finish)
 ---
 
 #### Sub-step 2.2: Disk Space Detection Failure ❌
@@ -111,7 +88,7 @@ After clicking "Continue" in the installer, a dialog appeared complaining about 
 - Installer uses native Windows API calls (`GetDiskFreeSpaceEx`) that map incorrectly under Wine
 - Bottles container configuration may have limited apparent disk quota
 
-**Status:** 🔴 **BLOCKER** — Installation cannot proceed past this point without resolution
+**Status:** 🔴 **BLOCKER** — Installation cannot proceed, though already installed installations may get farther
 
 ---
 
@@ -128,16 +105,6 @@ The Oculus installer refuses to run when Wine's virtual desktop mode is enabled.
 
 ---
 
-#### Sub-step 2.4: .NET Runtime Dependencies ⚠️
-
-**Eagle-exe-scanner finding:** The application requires **.NET Core / .NET Framework 5+**.
-
-**Action taken:** Attempted to install required .NET runtime via Bottles dependencies or manual Wine installation.
-
-**Status:** 🟡 Uncertain — Installer still failed at subsequent stages, so .NET may not have been fully satisfied or the issue lies elsewhere.
-
----
-
 ## 🚨 Current Blockers (Active Issues Preventing Progress)
 
 ### Blocker #1: Disk Space Detection Failure 🔴
@@ -148,7 +115,7 @@ The Oculus installer refuses to run when Wine's virtual desktop mode is enabled.
 **Root cause hypothesis:**
 The Windows installer uses native APIs to enumerate available disk space. Under Wine/Bottles, the filesystem abstraction layer may not correctly report actual available storage, causing false "no space" errors even when plenty of room exists.
 
-**Potential solutions being investigated:**
+**Potential solutions:**
 1. Manually configure Bottles drive C: with explicit size limits that appear sufficient
 2. Modify environment variables (`WINEFSIZE` or similar) to override disk detection
 3. Use Wine's registry editor to patch installer disk-check routines
@@ -173,7 +140,7 @@ For more details, see [Microsoft Documentation: Service Control Manager Function
 ```
 [LauncherService] Cannot install service:
 OpenSCManager Failed, LastError = Ox6be (1726):
-'Wywolanie RPC nieudane.'
+'Wywołanie RPC nieudane.'
 'Do you have permissions to start Windows services?'
 ```
 
@@ -189,12 +156,6 @@ OpenSCManager Failed, LastError = Ox6be (1726):
 #### What this means:
 
 The application expects to register itself with Windows SCM via `CreateService` API call. Wine's SCM emulation does not fully support this operation, causing the RPC call to fail immediately upon attempting service installation.
-
-**Impact:** Without a running OVRService:
-- ❌ No authentication tokens can be obtained from auth.meta.com
-- ❌ DRM license keys cannot be delivered to games
-- ❌ Oculus runtime cannot initialize tracking/hardware interfaces
-- ❌ Revive integration is impossible without the base service layer
 
 ---
 
@@ -230,15 +191,11 @@ The application expects to register itself with Windows SCM via `CreateService` 
 
 ---
 
-### LibOVRRT DLL Loading Failure (Error -3001)
-
-**Version reference:** 83.0.0.224.349
+### Oculus Debug Tool Failure
 
 **Issue:** Unable to load the core Oculus Runtime DLL (`LibOVRRT`). This error was observed when attempting to launch the **Oculus Debug Tool**, not during standard installation.
 
-**Root cause:** This is likely related to the absence of a running OVRService rather than a missing DLL file. Without the base service layer initialized, the debug tool cannot access runtime components even if the DLL exists on disk.
-
-**Status:** 🔴 Dependent on Blocker #2 resolution
+This is likely related to the absence of a running OVRService rather than a missing DLL file. Without the base service layer initialized, the debug tool cannot access runtime components even if the DLL exists on disk.
 
 ---
 
@@ -246,10 +203,10 @@ The application expects to register itself with Windows SCM via `CreateService` 
 
 **Current state:** ⚪ **Not tested — stage too early**
 
-Revive has not been tested at this point because the primary bottleneck remains the OVRService installation (Blocker #2). Attempting Revive integration before resolving core service issues would be premature.
+Revive has not been tested because the OVRService and other Oculus services don't work yet (Blocker #2). 
 
 For future reference, the official Revive project is available at:
-- **[LibreVR/Revive](https://github.com/LibreVR/Revive)** — 3.8k stars, 331 forks  
+- **[LibreVR/Revive](https://github.com/LibreVR/Revive)** 
   *"Compatibility layer between Oculus SDK and OpenVR/OpenXR"*
 
 Once OVRService is functional, testing will involve:
@@ -265,10 +222,7 @@ Once OVRService is functional, testing will involve:
 |-----------|-----------------------------------|----------|
 | Installer execution | ✅ Launches (with allfonts fix) | Low |
 | Font rendering | ✅ Fixed via allfonts package | Resolved |
-| Virtual desktop mode | ❌ Incompatible with installer | Workaround: disable it |
-| .NET runtime | 🟡 Uncertain (needs verification) | Medium |
 | Disk space detection | 🔴 Fails (false "no space" error) | High — BLOCKER |
-| WPF/ChildWindow patches | ✅ Provided by Proton patchset | 🟢 Not a blocker |
 | OVRService registration | 🔴🔴 Fails (OpenSCManager RPC) | Critical — PRIMARY BLOCKER |
 | LibOVRRT loading | 🔴 Fails (error -3001) | High — dependent on service layer |
 | Client authentication | 🔴 Blocked (no running service) | Critical |
@@ -289,21 +243,11 @@ To make this work end-to-end, the following components would need to be implemen
 - Create a mock OVRService that satisfies the API contract without actual service registration
 - Intercept and redirect RPC calls at the DLL level using Wine's `wineproxy` framework
 
-**Estimated effort:** Weeks to months of work requiring deep knowledge of both Wine internals and Meta's Oculus SDK architecture.
 
 ---
 
-### 2. LibOVRRT DLL Compatibility Layer
+### 2. Possible Problems
 
-**Challenge:** Ensure the correct version of `LibOVRRT.dll` is available and loadable under Wine.
-
-**Actions needed:**
-- Extract or copy the Windows version of `LibOVRRT.dll` from a working installation
-- Verify architecture compatibility (likely 64-bit, must match Wine prefix bitness)
-- Ensure all dependent DLLs are present in the Wine prefix's `System32` directory
-- Patch any hardcoded paths or dependencies that fail under Wine
-
-**Note:** As noted above, this error may not actually be a missing file issue but rather a symptom of OVRService not running. Resolving Blocker #1 may automatically resolve this.
 
 ---
 
