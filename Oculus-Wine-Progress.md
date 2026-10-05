@@ -1,6 +1,6 @@
-# Oculus on Linux via Wine — Installation Progress Log
+# Oculus on Linux via Wine, Installation Progress Log
 
-> **Status:** 🚧 In Progress (Blocked — but see reclassification notes below; both
+> **Status:** 🚧 In Progress (Blocked, but see reclassification notes below; both
 > blockers were measured on 2026-10-05 and the stated root causes are wrong)
 > **Started:** 2026-07-24  
 > **Platform:** Bottles Flatpak + Wine (kron4ek-wine-11.3 + Proton patchset)  
@@ -47,9 +47,9 @@ Game launches via SteamVR OpenXR runtime
 ```
 Detected: CreateService, StartService
 ```
-The application attempts to install Windows services during setup. This is a fundamental requirement — the OVRService must be registered as a Windows service to function properly.
+The application attempts to install Windows services during setup. This is a fundamental requirement, the OVRService must be registered as a Windows service to function properly.
 
-**Impact:** 🔴 Critical blocker — Wine's SCM emulation is incomplete
+**Impact:** 🔴 Critical blocker, Wine's SCM emulation is incomplete
 
 ---
 
@@ -92,7 +92,7 @@ After clicking "Continue" in the installer, a dialog appeared complaining about 
 - Installer uses native Windows API calls (`GetDiskFreeSpaceEx`) that map incorrectly under Wine
 - Bottles container configuration may have limited apparent disk quota
 
-**Status:** 🔴 **BLOCKER** — Installation cannot proceed, though already installed installations may get farther
+**Status:** 🔴 **BLOCKER**, Installation cannot proceed, though already installed installations may get farther
 
 ---
 
@@ -105,7 +105,7 @@ The Oculus installer refuses to run when Wine's virtual desktop mode is enabled.
 
 **Result:** Installer proceeded past the initial compatibility check after disabling virtual desktop.
 
-**Note:** This must be documented as a hard requirement — virtual desktop cannot be used with this installer.
+**Note:** This must be documented as a hard requirement, virtual desktop cannot be used with this installer.
 
 ---
 
@@ -156,7 +156,7 @@ OpenSCManager Failed, LastError = Ox6be (1726):
 'Do you have permissions to start Windows services?'
 ```
 
-**Translation:** "RPC call failed" — Error code `0x6be` (decimal 1726) indicates the service cannot be started in the current execution context.
+**Translation:** "RPC call failed", Error code `0x6be` (decimal 1726) indicates the service cannot be started in the current execution context.
 
 #### Context from launcher documentation (paraphrased):
 
@@ -179,7 +179,7 @@ The application expects to register itself with Windows SCM via `CreateService` 
 
 **Issue:** The built-in diagnostics/fixer tool does not execute successfully, providing no useful diagnostic output or repair functionality.
 
-**Interpretation:** This confirms the fundamental service layer issue — the fixer itself depends on OVRService being available to function.
+**Interpretation:** This confirms the fundamental service layer issue, the fixer itself depends on OVRService being available to function.
 
 ---
 
@@ -197,7 +197,7 @@ The application expects to register itself with Windows SCM via `CreateService` 
 
 **Result:** ⚠️ Brief popup only  
 
-**Observed:** A dialog titled **"Aktualizacja Link"** (Polish: "Link Update") appeared briefly — approximately one second — then disappeared immediately.
+**Observed:** A dialog titled **"Aktualizacja Link"** (Polish: "Link Update") appeared briefly, approximately one second, then disappeared immediately.
 
 **Interpretation:** The library updater component attempted to initialize but failed due to service communication failure or missing dependencies, causing immediate termination.
 
@@ -213,7 +213,7 @@ This is likely related to the absence of a running OVRService rather than a miss
 
 ## 🔄 Revive Integration Status
 
-**Current state:** ⚪ **Not tested — stage too early**
+**Current state:** ⚪ **Not tested, stage too early**
 
 Revive has not been tested because the OVRService and other Oculus services don't work yet (Blocker #2). 
 
@@ -234,9 +234,9 @@ Once OVRService is functional, testing will involve:
 |-----------|-----------------------------------|----------|
 | Installer execution | ✅ Launches (with allfonts fix) | Low |
 | Font rendering | ✅ Fixed via allfonts package | Resolved |
-| Disk space detection | 🔴 Fails (false "no space" error) | High — BLOCKER |
-| OVRService registration | 🔴🔴 Fails (OpenSCManager RPC) | Critical — PRIMARY BLOCKER |
-| LibOVRRT loading | 🔴 Fails (error -3001) | High — dependent on service layer |
+| Disk space detection | 🔴 Fails (false "no space" error) | High, BLOCKER |
+| OVRService registration | 🔴🔴 Fails (OpenSCManager RPC) | Critical, PRIMARY BLOCKER |
+| LibOVRRT loading | 🔴 Fails (error -3001) | High, dependent on service layer |
 | Client authentication | 🔴 Blocked (no running service) | Critical |
 | Game DRM access | 🔴 Blocked (depends on OVRPlatformService) | Critical |
 
@@ -287,7 +287,7 @@ To make this work end-to-end, the following components would need to be implemen
 - Ensure SteamVR OpenXR loader receives correct HMD tracking, controller input, and timing data
 - Handle the authentication/DRM flow that normally passes through OVRPlatformService
 
-**Note:** This depends entirely on Blocker #1 being resolved first — Revive cannot function without the base service layer running.
+**Note:** This depends entirely on Blocker #1 being resolved first, Revive cannot function without the base service layer running.
 
 ---
 
@@ -308,18 +308,18 @@ To make this work end-to-end, the following components would need to be implemen
 ## 📚 References & Related Projects
 
 ### Active / Partially Applicable:
-- **[LibreVR/Revive](https://github.com/LibreVR/Revive)** — 3.8k stars, active community  
+- **[LibreVR/Revive](https://github.com/LibreVR/Revive)**, 3.8k stars, active community  
   *"Compatibility layer between Oculus SDK and OpenVR/OpenXR"*  
   Contains compatibility lists, installation guides, and source code for Revive DLL
-- **[GloriousEggroll/proton-ge-custom](https://github.com/GloriousEggroll/proton-ge-custom)** — Extended Proton with additional VR SDK patches
-- **[kron4ek/Wine-Builds](https://github.com/kron4ek/Wine-Builds)** — Custom Wine forks with gaming optimizations
+- **[GloriousEggroll/proton-ge-custom](https://github.com/GloriousEggroll/proton-ge-custom)**, Extended Proton with additional VR SDK patches
+- **[kron4ek/Wine-Builds](https://github.com/kron4ek/Wine-Builds)**, Custom Wine forks with gaming optimizations
 
 ### Microsoft Documentation:
-- **[Service Control Manager Functions](https://learn.microsoft.com/en-us/windows/win32/services/service-control-manager)** — Official API documentation for `OpenSCManager`, `CreateService`, `StartService` and related functions
-- **[Windows Services Overview](https://learn.microsoft.com/en-us/windows/win32/services/services)** — General documentation on Windows service architecture
+- **[Service Control Manager Functions](https://learn.microsoft.com/en-us/windows/win32/services/service-control-manager)**, Official API documentation for `OpenSCManager`, `CreateService`, `StartService` and related functions
+- **[Windows Services Overview](https://learn.microsoft.com/en-us/windows/win32/services/services)**, General documentation on Windows service architecture
 
 ### Archived / Legacy:
-- **[jspenguin/oculus-wine-wrapper](https://github.com/jspenguin/oculus-wine-wrapper)** — Wrapper from DK1/DK2 era (archived November 2023). Useful as historical reference but not applicable to modern Oculus Store architecture. Last commit ~11 years ago.
+- **[jspenguin/oculus-wine-wrapper](https://github.com/jspenguin/oculus-wine-wrapper)**, Wrapper from DK1/DK2 era (archived November 2023). Useful as historical reference but not applicable to modern Oculus Store architecture. Last commit ~11 years ago.
 
 ---
 
@@ -350,7 +350,7 @@ To make this work end-to-end, the following components would need to be implemen
 This document was compiled from:
 - Direct observation of installation dialogues and error messages
 - Eagle-exe-scanner dependency analysis output (built into Bottles Flatpak)
-- OCR extraction of Polish-language error dialogs (with disclaimer above regarding potential transcription inaccuracies — most were manually corrected)
+- OCR extraction of Polish-language error dialogs (with disclaimer above regarding potential transcription inaccuracies, most were manually corrected)
 - Systematic testing of Wine version variants and Bottles configurations
 
 All findings are documented as observed during actual installation attempts on Linux with Bottles Flatpak + kron4ek-wine-11.3.

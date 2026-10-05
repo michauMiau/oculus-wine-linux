@@ -17,11 +17,11 @@ OpenSCManager Failed, LastError = Ox6be (1726):
 'Do you have permissions to start Windows services?'
 ```
 
-**Translation:** "RPC call failed" — error code 0x6BE (1726)
+**Translation:** "RPC call failed", error code 0x6BE (1726)
 
 ## What This Means
 
-Error 1726/0x6BE is `RPC_S_CALL_FAILED` — the Remote Procedure Call to the Service Control Manager (SCM) failed. In Windows terms this means:
+Error 1726/0x6BE is `RPC_S_CALL_FAILED`, the Remote Procedure Call to the Service Control Manager (SCM) failed. In Windows terms this means:
 
 > The SCM service (`services.exe`) isn't running or accessible in Wine's environment.
 
@@ -32,9 +32,9 @@ This is because:
 
 ## What I Searched For
 
-- **GitHub Issues (wine-mirror/wine):** searched for `OpenSCManager 0x6be`, `service install CreateService RPC`, `CreateService error RPC`, `service manager RPC` — **zero results**
-- **Commit search (wine-mirror/wine):** searched code and commits for `0x6be`, `OpenSCManager rpc` — **no matches found in Wine source**
-- **GitLab (gitlab.winehq.org):** attempted direct access — blocked by Anubis firewall
+- **GitHub Issues (wine-mirror/wine):** searched for `OpenSCManager 0x6be`, `service install CreateService RPC`, `CreateService error RPC`, `service manager RPC`, **zero results**
+- **Commit search (wine-mirror/wine):** searched code and commits for `0x6be`, `OpenSCManager rpc`, **no matches found in Wine source**
+- **GitLab (gitlab.winehq.org):** attempted direct access, blocked by Anubis firewall
 
 ## Conclusion
 
@@ -55,7 +55,7 @@ The Wine project doesn't prioritize full Windows service emulation because most 
 ### 2. Mock OpenSCManager via DLL injection
 - Hook `advapi32.dll!OpenSCManagerA/W` and return a fake handle
 - Make it appear as if the service was successfully registered
-- Risky — may cause cascading failures elsewhere
+- Risky, may cause cascading failures elsewhere
 
 ### 3. Use a Wine fork that adds service emulation
 - Check if any community forks implement basic SCM support
@@ -68,7 +68,7 @@ The Wine project doesn't prioritize full Windows service emulation because most 
 
 ## Status
 
-🚧 **SUPERSEDED 2026-10-05 — this conclusion was wrong.** See
+🚧 **SUPERSEDED 2026-10-05, this conclusion was wrong.** See
 [`wine-scm-measured-findings.md`](wine-scm-measured-findings.md).
 
 *Research conducted 2026-07-24. No community patches or workarounds discovered for this exact error in Wine's public repositories.*
