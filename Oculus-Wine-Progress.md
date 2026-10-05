@@ -1,9 +1,13 @@
 # Oculus on Linux via Wine — Installation Progress Log
 
-> **Status:** 🚧 In Progress (Blocked)  
+> **Status:** 🚧 In Progress (Blocked — but see reclassification notes below; both
+> blockers were measured on 2026-10-05 and the stated root causes are wrong)
 > **Started:** 2026-07-24  
 > **Platform:** Bottles Flatpak + Wine (kron4ek-wine-11.3 + Proton patchset)  
 > **Target Application:** Meta Horizon Link (Oculus PC Client v83.0.0.224.349)
+
+> 📌 **Read first:** [`wine-scm-measured-findings.md`](wine-scm-measured-findings.md).
+> It disproves the two root causes recorded below with compiled, executed probes.
 
 
 ---
@@ -123,6 +127,14 @@ The Windows installer uses native APIs to enumerate available disk space. Under 
 ---
 
 ### Blocker #2: RPC Service Installation Failure 🔴🔴🔴
+
+> ⚠️ **RECLASSIFIED — 2026-10-05.** The root-cause statement below ("Wine's SCM
+> emulation is incomplete") is **false**. Measured: Wine implements the full SCM RPC
+> surface and a probe reached SERVICE_RUNNING with a real PID. The likely real cause is
+> that `services.exe` was not running in the bottle when the launcher ran — 0x6be is
+> `RPC_S_CALL_FAILED` from the RPC binding, not a refusal by Wine. See
+> [`wine-scm-measured-findings.md`](wine-scm-measured-findings.md). The reasoning below
+> is kept for history.
 
 This is the **primary architectural blocker**. The Oculus client requires running as a Windows service (`OVRService`), but Wine's Service Control Manager (SCM) emulation is incomplete.
 
