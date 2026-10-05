@@ -1,12 +1,11 @@
 # OpenSCManager RPC Error 0x6BE Research
 
-> ⚠️ **SUPERSEDED — 2026-10-05.** The conclusion below ("fundamental limitation of
-> Wine", "services.exe doesn't exist under Wine") is **false** and was measured to be
-> false. See [`wine-scm-measured-findings.md`](wine-scm-measured-findings.md) for the
-> disproof: Wine ships `services.exe` (present since 2012), implements
-> `OpenSCManager`/`CreateService`/`StartService`, and a compiled probe completed
-> install → start → **SERVICE_RUNNING with a real PID**. 0x6be means `services.exe` was
-> not running in that prefix. The original text is kept below for history.
+> ⚠️ **SUPERSEDED, 2026-10-05.** The conclusion below is **false** and was measured to
+> be false. See [`wine-scm-measured-findings.md`](wine-scm-measured-findings.md).
+> Wine ships `services.exe` (present since 2012), implements
+> `OpenSCManager`/`CreateService`/`StartService`, and a compiled probe went
+> install → start → SERVICE_RUNNING with a real PID. Error 0x6be means `services.exe`
+> was not running in that prefix. Original text kept below for history.
 
 ## The Problem
 
